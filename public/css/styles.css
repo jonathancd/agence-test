@@ -1,0 +1,32 @@
+.btn-logout:hover{
+	text-decoration: none;
+}
+.navbar-icon-top .navbar-nav .nav-link > .fa {
+  position: relative;
+  width: 36px;
+  font-size: 24px;
+}
+
+
+.navbar-icon-top .navbar-nav .nav-link > .fa {
+  top: 3px;
+  line-height: 12px;
+}
+
+.navbar-icon-top.navbar-expand-lg .navbar-nav .nav-link > .fa {
+	display: block;
+	width: 48px;
+	margin: 2px auto 4px auto;
+	top: 0;
+	line-height: 24px;
+	text-align: center;
+}
+
+@media (max-width: 768px) {
+	.navbar-icon-top.navbar-expand-lg .navbar-nav .nav-link > .fa{
+		display: inline-block;
+	}
+	.btn-fl-xs{
+		float: right;
+	}
+}
