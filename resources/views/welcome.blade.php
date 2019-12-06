@@ -59,9 +59,9 @@
 						</select>
 
 						<div class="d-inline ml-3 my-3 my-md-0 my-lg-0">
-							<button class="btn btn-outline-secondary"><i class="fa fa-calculator"></i> Relatorio</button>
-							<button class="btn btn-outline-secondary"><i class="fa fa-bar-chart"></i> Gráfico</button>
-							<button class="btn btn-outline-secondary"><i class="fa fa-pie-chart"></i> Pizza</button>
+							<button id="btn-relatorio" class="btn btn-outline-secondary"><i class="fa fa-calculator"></i> Relatorio</button>
+							<button id="btn-grafica" class="btn btn-outline-secondary"><i class="fa fa-bar-chart"></i> Gráfico</button>
+							<button id="btn-pizza" class="btn btn-outline-secondary"><i class="fa fa-pie-chart"></i> Pizza</button>
 						</div>
 				    </form>							
 
@@ -124,5 +124,10 @@
 	</section>
 	
 	<br><br><br><br>
+	
+	<script>
+		const url = "{{url('/')}}";
+	</script>
+
 
 @endsection

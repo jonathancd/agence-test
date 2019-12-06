@@ -22,16 +22,12 @@ class DesempenoConsultoresController extends Controller
                         ->orderBy('cao_usuario.no_usuario','asc')
                         ->get();
 
-     //    return response()->json([
-     //    		'consultores' => $consultores
-     //    	], 200);
-
         return view('welcome', compact('consultores'));
+
     }
 
     public function relatorio(RelatorioRequest $request){
 
-    	return $request->all();
 
     	if($request->ajax()){
 
@@ -41,14 +37,15 @@ class DesempenoConsultoresController extends Controller
 	    	$hasta_m = $request->hasta_m;
 	    	$hasta_y = $request->hasta_y;
 
-    		return response()->json(200);
+
+            $relatorio = CaoFatura::getRelatorio($request);
+
+    		return response()->json([ "relatorio" => $relatorio], 200);
+
     	}
 
     	abort(401);
-    }
-
-
-    public function getReceitaLiquida(){
 
     }
+
 }

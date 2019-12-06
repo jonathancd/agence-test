@@ -9,8 +9,18 @@ let App = {
 
 
 
-	getRelatorio: function getRelatorioFn() {
+	getRelatorio: () => {
 
+		// var route = "{{url('/relatorio')}}";
+		let route = url + "/relatorio";
+
+		console.log(route);
+		
+		$.get(route, function (respuesta) {
+        	
+        	console.log(respuesta);
+
+    	});
 
 	},
 
@@ -114,7 +124,7 @@ let App = {
 		document.getElementById("consultor-item-available-" + co_usuario).classList.remove('bg-primary', 'text-white');
 
 		if(!is_removing){
-			
+
 			let consultor_checkbox = document.getElementById("check-consultor-" + co_usuario);
 
 			consultor_checkbox.checked = false;
@@ -153,6 +163,13 @@ $(document).ready(() => {
 		e.preventDefault();
 
 		App.handleRemoveConsultor(e);
+
+	});
+
+
+	$(document).on('click', '#btn-relatorio', () => {
+
+		App.getRelatorio();
 
 	});
 
