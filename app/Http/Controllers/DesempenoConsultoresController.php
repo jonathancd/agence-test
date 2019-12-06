@@ -26,17 +26,15 @@ class DesempenoConsultoresController extends Controller
 
     }
 
-    public function relatorio(RelatorioRequest $request){
-
+    public function relatorio(Request $request){
 
     	if($request->ajax()){
 
     		$consultores = $request->consultores;
-	    	$desde_m = $request->desde_m;
-	    	$desde_y = $request->desde_y;
-	    	$hasta_m = $request->hasta_m;
+	    	$from_month = $request->from_month;
+	    	$from_year = $request->from_year;
+	    	$to_month = $request->to_month;
 	    	$hasta_y = $request->hasta_y;
-
 
             $relatorio = CaoFatura::getRelatorio($request);
 

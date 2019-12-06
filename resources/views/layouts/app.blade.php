@@ -10,17 +10,22 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
-	
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+	<!-- //maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css -->
+
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
 	
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="{{ asset('js/jquery.min.js') }}"></script>
+	<!-- //cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js -->
 
-	<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+	<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+	<!-- //maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js -->
+	
+	<script src="{{ asset('js/moment.js') }}"></script>
 
 </head>
 <body>

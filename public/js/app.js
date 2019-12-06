@@ -2,32 +2,74 @@ let App = {
 
 
 	consultores_co_usuario_in_filter: [],
-	from_month: '',
-	from_year: '',
-	to_month: '',
-	to_year: '',
-
+	start_month: document.getElementById("from-month"),
+	start_year: document.getElementById("from-year"),
+	end_month: document.getElementById("to-month"),
+	end_year: document.getElementById("to-year"),
 
 
 	getRelatorio: () => {
 
-		// var route = "{{url('/relatorio')}}";
 		let route = url + "/relatorio";
 
-		console.log(route);
-		
-		$.get(route, function (respuesta) {
-        	
-        	console.log(respuesta);
+		let data = {
+				start_month: App.start_month.value,
+				start_year: App.start_year.value,
+				end_month: App.end_month.value,
+				end_year: App.end_year.value,
+				consultores: App.getConsultoresSeleccionados
+		}
 
-    	});
+		$.ajax({
+		    url: route,
+		    type:'get',
+		    data: data,
+		    dataType: 'json',
+		    success: function(response) {
+		      //Do Something
+		      console.log(response)
+
+		      App.getMonthsBetweenDates(data);
+
+		    },
+		    error: function(e) {
+		    //Do Something to handle error
+		    	$.each(e.responseJSON.errors, function (index, element) {
+	                if ($.isArray(element)) {
+	                    // toastr.error(element[0]);
+	                    console.log(element[0])
+	                }
+	            });
+		    }
+		});
+
+
+	},
+
+
+
+	getMonthsBetweenDates: (data) => {
+
+		var start_date = moment(data.start_year + '-' + data.start_month + '-1', "YYYY-mm-dd");
+		var end_date = moment(data.end_year + '-' + data.end_month + '-8', "YYYY-mm-dd");
+
+
+		while (start_date.isSameOrBefore(end_date)) {
+
+		  	month = Number( start_date.format('m') );
+
+		  	year = start_date.format('YYYY');
+
+		  	start_date = moment(year + '-' + (month + 1) + '-1', "YYYY-mm-dd");
+
+		}
 
 	},
 
 
 	getConsultoresSeleccionados: function getRelatorioFn() {
 
-
+		return [];
 	},
 
 
@@ -167,7 +209,8 @@ $(document).ready(() => {
 	});
 
 
-	$(document).on('click', '#btn-relatorio', () => {
+	$(document).on('click', '#btn-relatorio', (e) => {
+		e.preventDefault();
 
 		App.getRelatorio();
 
