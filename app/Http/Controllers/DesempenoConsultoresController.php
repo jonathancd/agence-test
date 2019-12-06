@@ -13,20 +13,20 @@ class DesempenoConsultoresController extends Controller
 {
     public function index(){
 
-    	// $consultores = CaoUsuario::join('permissao_sistema', 'permissao_sistema.co_usuario', '=', 'cao_usuario.co_usuario')
-     //                    ->where([
-					// 	    ['permissao_sistema.co_sistema', '=', 1],
-					// 	    ['permissao_sistema.in_ativo', '=', 'S'],
-					// 	])
-     //                    ->whereIn('permissao_sistema.co_tipo_usuario', [0, 1, 2])
-     //                    ->orderBy('cao_usuario.no_usuario','asc')
-     //                    ->get();
+    	$consultores = CaoUsuario::join('permissao_sistema', 'permissao_sistema.co_usuario', '=', 'cao_usuario.co_usuario')
+                        ->where([
+						    ['permissao_sistema.co_sistema', '=', 1],
+						    ['permissao_sistema.in_ativo', '=', 'S'],
+						])
+                        ->whereIn('permissao_sistema.co_tipo_usuario', [0, 1, 2])
+                        ->orderBy('cao_usuario.no_usuario','asc')
+                        ->get();
 
      //    return response()->json([
      //    		'consultores' => $consultores
      //    	], 200);
 
-        return view('welcome');
+        return view('welcome', compact('consultores'));
     }
 
     public function relatorio(RelatorioRequest $request){

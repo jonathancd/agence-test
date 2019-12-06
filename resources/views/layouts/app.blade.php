@@ -25,8 +25,11 @@
 </head>
 <body>
 
-	<div id="container">
+	<div id="app">
 		@include('layouts._partials.navbar')
+	
+		@yield('content')
+
 	</div>
 
 	
