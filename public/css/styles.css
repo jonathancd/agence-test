@@ -1,5 +1,6 @@
 html {
   --scrollbarBG: #CFD8DC;
+  --thumbBG: #343a40;
   --thumbBG: #90A4AE;
 }
 
@@ -57,10 +58,18 @@ body::-webkit-scrollbar-thumb, .consultores-list::-webkit-scrollbar-thumb {
 
 /* Media queries */
 @media (max-width: 768px) {
-	.navbar-icon-top.navbar-expand-lg .navbar-nav .nav-link > .fa{
+	.navbar-icon-top.navbar-expand-lg .navbar-nav .nav-link > .fa {
 		display: inline-block;
 	}
 	.btn-fl-xs{
 		float: right;
+	}
+}
+
+
+@media (max-width: 691px) {
+	.periodo-col {
+		font-weight: bold;
+    	padding: 15px;
 	}
 }

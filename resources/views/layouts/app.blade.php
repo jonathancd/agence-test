@@ -15,10 +15,13 @@
 
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
+	<link href="{{ asset('css/styles.css') }}" rel="stylesheet">
+
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
-    <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/toastr.min.css') }}" rel="stylesheet">
 	
+
 	<script src="{{ asset('js/jquery.min.js') }}"></script>
 	<!-- //cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js -->
 
@@ -26,6 +29,8 @@
 	<!-- //maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js -->
 	
 	<script src="{{ asset('js/moment.js') }}"></script>
+
+	<script src="{{ asset('js/toastr.min.js') }}"></script>
 
 </head>
 <body>

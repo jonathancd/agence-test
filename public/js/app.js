@@ -1,11 +1,15 @@
-let App = {
 
+const months_name = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+
+
+let App = {
 
 	consultores_co_usuario_in_filter: [],
 	start_month: document.getElementById("from-month"),
 	start_year: document.getElementById("from-year"),
 	end_month: document.getElementById("to-month"),
 	end_year: document.getElementById("to-year"),
+	relatorios_container: document.getElementById("relatorios-container"),
 
 
 	getRelatorio: () => {
@@ -17,7 +21,7 @@ let App = {
 				start_year: App.start_year.value,
 				end_month: App.end_month.value,
 				end_year: App.end_year.value,
-				consultores: App.getConsultoresSeleccionados
+				consultores: App.consultores_co_usuario_in_filter
 		}
 
 		$.ajax({
@@ -26,20 +30,31 @@ let App = {
 		    data: data,
 		    dataType: 'json',
 		    success: function(response) {
-		      //Do Something
-		      console.log(response)
 
-		      App.getMonthsBetweenDates(data);
+		        App.clearRelatoriosContainer();
+
+			    let months_and_years_selected = App.getMonthsYearsBetweenDates(data);
+
+		      	App.addRelatorios(months_and_years_selected, response.relatorios);
+
+		      	toastr.success("Relatorios cargados.");
 
 		    },
 		    error: function(e) {
-		    //Do Something to handle error
-		    	$.each(e.responseJSON.errors, function (index, element) {
-	                if ($.isArray(element)) {
-	                    // toastr.error(element[0]);
-	                    console.log(element[0])
-	                }
-	            });
+		    	console.log(e);
+
+		    	if(e.responseJSON){
+			    	$.each(e.responseJSON.errors, function (index, element) {
+		                if ($.isArray(element)) {
+		                    toastr.error(element[0]);
+		                    console.log(element[0])
+		                }
+		            });
+
+		            if(e.responseJSON.error){
+		            	toastr.error(e.responseJSON.error);
+		            }
+		    	}
 		    }
 		});
 
@@ -47,32 +62,252 @@ let App = {
 	},
 
 
+	clearRelatoriosContainer: () => {
 
-	getMonthsBetweenDates: (data) => {
+		let container = App.relatorios_container;
 
-		var start_date = moment(data.start_year + '-' + data.start_month + '-1', "YYYY-mm-dd");
-		var end_date = moment(data.end_year + '-' + data.end_month + '-8', "YYYY-mm-dd");
+		while (container.firstChild) {
+    		container.removeChild(container.firstChild);
+  		}
+
+	},
 
 
-		while (start_date.isSameOrBefore(end_date)) {
+	addRelatorios: (dates, relatorios) => {
 
-		  	month = Number( start_date.format('m') );
+		for(let index=0; index < relatorios.length; index++){
 
-		  	year = start_date.format('YYYY');
+			let consultor = relatorios[index];
 
-		  	start_date = moment(year + '-' + (month + 1) + '-1', "YYYY-mm-dd");
+			let consultor_html = App.getHtmlRelatorioContent(dates, consultor, index);
+
+			let container = App.relatorios_container;
+
+			$(container).append(consultor_html);
 
 		}
 
 	},
 
 
-	getConsultoresSeleccionados: function getRelatorioFn() {
 
-		return [];
+
+	getHtmlRelatorioContent: (dates, consultor, index) => {
+
+		let html =  `<div class="row">
+						<div class="col-md-12">
+							<div class="accordion" id="accordion-${consultor.co_usuario}">
+								<div class="card mb-4">
+
+									${App.getHtmlCardRelatorioTitle(consultor, index)}
+
+									
+									<div id="collapseOne${index}" class="collapse show" aria-labelledby="headingOne${index}" data-parent="#accordion-${consultor.co_usuario}">
+							      		<div class="card-body p-0">
+							      			<div class="container">
+
+							      				${App.getHtmlRelatorioContentHeader()}
+
+							      				${App.getHtmlRelatorioContentRows(dates, consultor, index)}
+
+											</div>
+							      		</div>
+							    	</div>
+								</div>
+							</div>
+						</div>
+					</div>`;
+
+
+		return html;
+
 	},
 
 
+
+
+
+	getHtmlCardRelatorioTitle: (consultor, index) => {
+
+
+		let html =  `<div class="card-header bg-dark" id="headingOne${index}">
+					
+				      	<h2 class="mb-0">
+
+				        	<button class="btn btn-link text-white" data-toggle="collapse" data-target="#collapseOne${index}" aria-expanded="true" aria-controls="collapseOne${index}">               
+								<i class="fa" aria-hidden="true"></i>
+
+								${consultor.no_usuario}
+
+							</button>
+
+				      	</h2>
+				    </div>`;
+
+		return html;
+	},
+
+
+
+
+
+
+
+	getHtmlRelatorioContentRows: (dates, consultor) => {
+
+		let html =  '';
+		let total_receita  = 0;
+		let total_costo    = 0;
+		let total_comision = 0;
+		let total_lucro    = 0;
+
+
+		for(let i=0; i < dates.length; i++){
+
+			let date = dates[i];
+
+			let periodo = date.month_name + ' de ' + date.year;
+
+			let receita = 0.00;
+			let costo = 0.00;
+			let comision = 0.00;
+			let lucro = 0.00;
+
+			for(let j=0; j < consultor.relatorios.length; j++){
+
+				let relatorio = consultor.relatorios[j];
+
+				if(date.month_num == relatorio.periodo_mes){
+
+					receita  = relatorio.receita;
+					costo 	 = relatorio.costo_fijo;
+					comision = relatorio.comision;
+					lucro 	 = receita - (costo + comision);
+
+					total_receita  += receita;
+					total_costo    += costo;
+					total_comision += comision;
+					total_lucro    += lucro;
+
+				}
+
+			}
+
+
+			let lucro_color  = total_lucro 	< 0 ? "text-danger" : "text-success";
+
+			html +=     `<div class="row">
+							<div class="col-12 col-sm-12 col-md-4 col-lg-4 text-center border periodo-col">${periodo}</div>
+
+							<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Receita</div>
+							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">R$ ${receita.toFixed(2)}</div>
+
+							<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Costo Fijo</div>
+							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">- R$ ${costo.toFixed(2)}</div>
+
+							<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Comision</div>
+							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">- R$ ${comision.toFixed(2)}</div>
+
+							<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Lucro</div>
+							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border ${lucro_color}">R$ ${lucro.toFixed(2)}</div>
+						</div>`;
+
+
+		}
+
+		html += App.getHtmlRelatorioContentTotales(total_receita, total_costo, total_comision, total_lucro);
+
+		return html;
+
+	},
+
+
+	getHtmlRelatorioContentHeader: () => {
+
+
+		let html =  `<div class="row d-none d-md-flex d-lg-flex">
+						<div class="col-lg-4 col-md-4 col-sm-4 text-center border font-weight-bold py-2">Periodo</div>
+						<div class="col-lg-2 col-md-2 col-sm-2 text-center border font-weight-bold py-2">Receita</div>
+						<div class="col-lg-2 col-md-2 col-sm-2 text-center border font-weight-bold py-2">Custo Fixo</div>
+						<div class="col-lg-2 col-md-2 col-sm-2 text-center border font-weight-bold py-2">Comisión</div>
+						<div class="col-lg-2 col-md-2 col-sm-2 text-center border font-weight-bold py-2">Lucro</div>
+					</div>`;
+
+		return html;
+
+	},
+
+
+	getHtmlRelatorioContentTotales: (total_receita, total_costo, total_comision, total_lucro) => {
+
+		let lucro_color  = total_lucro 	< 0 ? "text-danger" : "text-primary";
+
+	    let html =  `<div class="row">
+						<div class="col-12 col-sm-12 col-md-4 col-lg-4 text-center border font-weight-bold periodo-col">Total</div>
+
+						<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Receita</div>
+						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">R$ ${total_receita.toFixed(2)}</div>
+
+						<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Costo Fijo</div>
+						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">- R$ ${total_costo.toFixed(2)}</div>
+
+						<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Comision</div>
+						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">- R$ ${total_comision.toFixed(2)}</div>
+
+						<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Lucro</div>
+						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border ${lucro_color}">- R$ ${total_lucro.toFixed(2)}</div>
+					</div>`;
+
+		return html;
+
+	},
+
+
+	getMonthName: (month_num) => {
+
+		return months_name[month_num - 1];
+
+	},
+
+	getMonthsYearsBetweenDates: (data) => {
+
+		let array_dates = [];
+
+		let start_date = moment(data.start_year + '-' + data.start_month + '-1', "YYYY-mm-dd");
+
+		let end_date = moment(data.end_year + '-' + data.end_month + '-1', "YYYY-mm-dd");
+
+
+		while (start_date.isSameOrBefore(end_date)) {
+
+		  	month_num = Number( start_date.format('m') );
+
+		  	month_name = App.getMonthName(month_num);
+
+		  	year = start_date.format('YYYY');
+
+		  	let month_year = {
+		  		month_num: month_num,
+		  		month_name: month_name,
+		  		year: year
+		  	}
+
+		  	array_dates.push(month_year);
+
+
+		  	if(month_num == 12){
+		  		month_num = 0;
+		  		year = Number(year) + 1;
+		  	}
+
+
+		  	start_date = moment(year + '-' + (month_num + 1) + '-1', "YYYY-mm-dd");
+
+		}
+
+		return array_dates;
+
+	},
 
 
 	addConsultorToFilter: (usuario) => {
@@ -140,6 +375,8 @@ let App = {
 
 			App.removeConsultorItemFromFilter(element);
 
+			App.removeConsultorCoUsuarioFromFilterArray(usuario.co_usuario);
+
 		}
 		
 
@@ -182,6 +419,7 @@ let App = {
 	},
 
 	removeConsultorCoUsuarioFromFilterArray: (co_usuario) => {
+
 
 		App.consultores_co_usuario_in_filter.splice( App.consultores_co_usuario_in_filter.indexOf(co_usuario), 1 );
 

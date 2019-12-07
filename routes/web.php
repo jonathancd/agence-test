@@ -15,5 +15,5 @@
 //     return view('welcome');
 // });
 
-Route::get('/', 'DesempenoConsultoresController@index');
-Route::get('/relatorio', 'DesempenoConsultoresController@relatorio');
+Route::get('/', 'PerformanceCommercialController@index');
+Route::get('/relatorio', 'PerformanceCommercialController@relatorio');
