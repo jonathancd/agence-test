@@ -16,4 +16,6 @@
 // });
 
 Route::get('/', 'PerformanceCommercialController@index');
-Route::get('/relatorio', 'PerformanceCommercialController@relatorio');
+Route::get('/relatorio', 'PerformanceCommercialController@getPerformance');
+Route::get('/grafica', 'PerformanceCommercialController@getPerformance');
+Route::get('/pizza', 'PerformanceCommercialController@pizza');

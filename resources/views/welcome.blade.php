@@ -125,18 +125,26 @@
 	</section>
 
 	
-	<section class="mt-5">
-		<div id="relatorios-container" class="container">
+	<section id="section-relatorios" class="mt-5">
+		<div id="relatorios-container" class="container"></div>
+	</section>
 
-		
+
+	<section id="section-grafica-bar" class="mt-5 d-none">
+		<div id="grafica-container" class="container">
+			<canvas id="bar-chart" width="800" height="250"></canvas>
+		</div>
+	</section>
+	
+
+	<section id="section-grafica-pizza" class="mt-5 d-none">
+		<div id="pizza-container" class="container">
+			<canvas id="pizza-chart" width="800" height="250"></canvas>
 		</div>
 	</section>
 
 
-	<section>
-		
-	</section>
-	
+
 
 	<br><br>
 

@@ -10,6 +10,8 @@ let App = {
 	end_month: document.getElementById("to-month"),
 	end_year: document.getElementById("to-year"),
 	relatorios_container: document.getElementById("relatorios-container"),
+	grafica_container: document.getElementById("grafica-container"),
+	pizza_container: document.getElementById("pizza-container"),
 
 
 	getRelatorio: () => {
@@ -21,7 +23,8 @@ let App = {
 				start_year: App.start_year.value,
 				end_month: App.end_month.value,
 				end_year: App.end_year.value,
-				consultores: App.consultores_co_usuario_in_filter
+				consultores: App.consultores_co_usuario_in_filter,
+				type: 1
 		}
 
 		$.ajax({
@@ -33,9 +36,15 @@ let App = {
 
 		        App.clearRelatoriosContainer();
 
+		        App.hideGraficaSection();
+
+		        App.hidePizzaSection();
+
+		        App.showRelatoriosSection();
+
 			    let months_and_years_selected = App.getMonthsYearsBetweenDates(data);
 
-		      	App.addRelatorios(months_and_years_selected, response.relatorios);
+		      	App.addRelatorios(months_and_years_selected, response.data);
 
 		      	toastr.success("Relatorios cargados.");
 
@@ -47,7 +56,6 @@ let App = {
 			    	$.each(e.responseJSON.errors, function (index, element) {
 		                if ($.isArray(element)) {
 		                    toastr.error(element[0]);
-		                    console.log(element[0])
 		                }
 		            });
 
@@ -423,10 +431,344 @@ let App = {
 
 		App.consultores_co_usuario_in_filter.splice( App.consultores_co_usuario_in_filter.indexOf(co_usuario), 1 );
 
+	},
+
+
+
+
+
+
+	getGrafica: () => {
+
+		let route = url + "/grafica";
+
+		let data = {
+				start_month: App.start_month.value,
+				start_year: App.start_year.value,
+				end_month: App.end_month.value,
+				end_year: App.end_year.value,
+				consultores: App.consultores_co_usuario_in_filter,
+				type: 2
+		}
+
+		$.ajax({
+		    url: route,
+		    type:'get',
+		    data: data,
+		    dataType: 'json',
+		    success: function(response) {
+
+		        App.clearRelatoriosContainer();
+		        App.hideRelatoriosSection();
+		        App.hidePizzaSection();
+
+		        App.showGraficaSection();
+		        
+
+			    let months_and_years_selected = App.getMonthsYearsBetweenDates(data);
+
+			    console.log(response);
+
+			    App.addGrafica(months_and_years_selected, response.data, response.costo_fijo_promedio);
+
+		     //  	App.addRelatorios(months_and_years_selected, response.relatorios);
+
+		     //  	toastr.success("Relatorios cargados.");
+
+		    },
+		    error: function(e) {
+		    	console.log(e);
+
+		    	if(e.responseJSON){
+			    	$.each(e.responseJSON.errors, function (index, element) {
+		                if ($.isArray(element)) {
+		                    toastr.error(element[0]);
+		                }
+		            });
+
+		            if(e.responseJSON.error){
+		            	toastr.error(e.responseJSON.error);
+		            }
+		    	}
+		    }
+		});
+
+
+	},
+
+
+	getPizza: () => {
+
+		let route = url + "/pizza";
+
+		let data = {
+				start_month: App.start_month.value,
+				start_year: App.start_year.value,
+				end_month: App.end_month.value,
+				end_year: App.end_year.value,
+				consultores: App.consultores_co_usuario_in_filter,
+				type: 2
+		}
+
+		$.ajax({
+		    url: route,
+		    type:'get',
+		    data: data,
+		    dataType: 'json',
+		    success: function(response) {
+
+
+		    	console.log(response)
+
+		     //    App.clearRelatoriosContainer();
+
+			    // let months_and_years_selected = App.getMonthsYearsBetweenDates(data);
+
+		     //  	App.addRelatorios(months_and_years_selected, response.relatorios);
+
+		     //  	toastr.success("Relatorios cargados.");
+
+		    },
+		    error: function(e) {
+		    	console.log(e);
+
+		    	if(e.responseJSON){
+			    	$.each(e.responseJSON.errors, function (index, element) {
+		                if ($.isArray(element)) {
+		                    toastr.error(element[0]);
+		                }
+		            });
+
+		            if(e.responseJSON.error){
+		            	toastr.error(e.responseJSON.error);
+		            }
+		    	}
+		    }
+		});
+
+
+	},
+
+
+
+
+
+
+	getGraficaDatesLabels: (dates) => {
+
+		let label = dates.map(function(date) {
+					      return date.month_name + ' de ' + date.year;
+					    });
+
+		return label;
+
+	},
+
+
+	getDataSetCostoPromedio: (dates, costo_promedio) => {
+
+		let label_costo_promedio = [];
+
+		for(let i=0; i < dates.length; i++){
+			label_costo_promedio.push(costo_promedio)
+		}
+
+		let data_set = {
+			label: 'Costo Fijo Promedio',
+            data: label_costo_promedio,
+            backgroundColor: "#000",
+            borderColor: '#000',
+            type: 'line',
+            fill: false,
+            order: 1
+		};
+
+		return data_set;
+	},
+
+
+
+
+	getDatasetBar: (dates, data) => {
+
+		let dataset_data = [];
+
+		let consultor_name = data.no_usuario;
+
+		for(let i=0; i < dates.length; i++){
+
+			let hasMonthYear = false;
+
+			for(let j=0; j<data.ganancias.length; j++){
+
+				if(data.ganancias[j].periodo_mes == dates[i].month_num && data.ganancias[j].periodo_anio == dates[i].year){
+
+					dataset_data.push(data.ganancias[j].receita.toFixed(2));
+
+					hasMonthYear = true;
+
+					break;
+				}
+			}
+
+
+			if(!hasMonthYear){
+
+				dataset_data.push(0);
+
+			}
+
+		}
+
+		let color = App.getRandomColor();
+
+		let data_set = {
+			label: consultor_name,
+		    backgroundColor: "#" + color,
+		    data: dataset_data
+		};
+
+		return data_set;
+
+	},
+
+
+
+	getRandomColor: () => {
+
+		const colors_combinations = new Array("0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F");
+
+		cutIn= 0;
+
+		var part1 = colors_combinations[Math.floor(Math.random() * colors_combinations.length)];
+		var part2 = colors_combinations[Math.floor(Math.random() * colors_combinations.length)];
+		var part3 = colors_combinations[Math.floor(Math.random() * colors_combinations.length)];
+		var part4 = colors_combinations[Math.floor(Math.random() * colors_combinations.length)];
+		var part5 = colors_combinations[Math.floor(Math.random() * colors_combinations.length)];
+		var part6 = colors_combinations[Math.floor(Math.random() * colors_combinations.length)];
+		var color =  part1 + part2 + part3 + part4 + part5 + part6;
+			
+		return color;
+			
+	},
+
+
+	refreshGraficaCanvas: () => {
+
+
+		let bart_chart = document.getElementById("bar-chart");
+
+		bart_chart.remove();
+
+		let grafica_container = $('#grafica-container');
+		
+		$(grafica_container).append('<canvas id="bar-chart" width="800" height="250"></canvas>');
+
+	},
+
+	addGrafica: (dates, data, costo_promedio) => {
+
+		let datasets = [];
+
+		let labels_date = App.getGraficaDatesLabels(dates);
+
+		let dataset_costo_promedio = App.getDataSetCostoPromedio(dates, costo_promedio)
+
+		
+		datasets.push(dataset_costo_promedio);
+
+
+
+		let colores = ["yellow", "blue", "green", "red"]
+
+
+		for(let i=0; i<data.length; i++){
+
+			let dataset = App.getDatasetBar(dates, data[i]);
+
+			datasets.push(dataset);
+			
+		}
+
+
+		App.refreshGraficaCanvas();
+
+		var ctx = document.getElementById("bar-chart").getContext("2d");
+
+		var data = {
+		    labels: labels_date,
+		    datasets: datasets
+		};
+
+		var myBarChart = new Chart(ctx, {
+		    type: 'bar',
+		    data: data,
+		    options: {
+		        legend: {
+		            position: 'bottom',
+		            labels: {
+		                fontColor: "black",
+		                boxWidth: 20,
+		                padding: 50
+		            }
+		        },
+		        title: {
+		          display: true,
+		          text: 'Performance Commercial'
+		        },
+		        barValueSpacing: 20,
+		    }
+		});
+
+		toastr.success("Gráfica cargada exitosamente.");
+
+	},
+
+
+
+
+	/* Shows & Hide*/
+
+	showGraficaSection: () => {
+
+		document.getElementById("section-grafica-bar").classList.remove('d-none');
+
+	},
+	showPizzaSection: () => {
+
+		document.getElementById("section-grafica-pizza").classList.remove('d-none');
+
+	},
+	showRelatoriosSection: () => {
+
+		document.getElementById("section-relatorios").classList.remove('d-none');
+
+	},
+
+
+	hideGraficaSection: () => {
+
+		document.getElementById("section-grafica-bar").classList.add('d-none');
+
+	},
+
+	hidePizzaSection: () => {
+
+		document.getElementById("section-grafica-pizza").classList.add('d-none');
+
+	},
+
+	hideRelatoriosSection: () => {
+
+		document.getElementById("section-relatorios").classList.add('d-none');
+
 	}
 
-
 };
+
+
+
+
 
 
 $(document).ready(() => {
@@ -451,6 +793,22 @@ $(document).ready(() => {
 		e.preventDefault();
 
 		App.getRelatorio();
+
+	});
+
+
+
+	$(document).on('click', '#btn-grafica', (e) => {
+		e.preventDefault();
+
+		App.getGrafica();
+
+	});
+
+	$(document).on('click', '#btn-pizza', (e) => {
+		e.preventDefault();
+
+		App.getPizza();
 
 	});
 
