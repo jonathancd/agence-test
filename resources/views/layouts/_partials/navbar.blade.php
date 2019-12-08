@@ -1,6 +1,6 @@
 <nav class="navbar navbar-icon-top navbar-expand-lg navbar-expand-md navbar-dark bg-dark">
   
-  <a class="navbar-brand" href="#">
+  <a class="navbar-brand" href="{{ url('/') }}">
     <img src="{{ asset('images/agence.png') }}" alt="">
   </a>
 

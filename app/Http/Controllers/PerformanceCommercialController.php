@@ -7,7 +7,6 @@ use App\Http\Requests\PerformanceRequest;
 use App\CaoFatura;
 use App\CaoSalario;
 use App\CaoUsuario;
-use App\PermissaoSistema;
 use Carbon\Carbon;
 
 class PerformanceCommercialController extends Controller
@@ -15,16 +14,9 @@ class PerformanceCommercialController extends Controller
 
 	public function index(){
 
-    	$consultores = CaoUsuario::join('permissao_sistema', 'permissao_sistema.co_usuario', '=', 'cao_usuario.co_usuario')
-                        ->where([
-						    ['permissao_sistema.co_sistema', '=', 1],
-						    ['permissao_sistema.in_ativo', '=', 'S'],
-						])
-                        ->whereIn('permissao_sistema.co_tipo_usuario', [0, 1, 2])
-                        ->orderBy('cao_usuario.no_usuario','asc')
-                        ->get();
+    	$consultores = CaoUsuario::getAll();
 
-        return view('welcome', compact('consultores'));
+        return view('index', compact('consultores'));
 
     }
 
@@ -33,17 +25,13 @@ class PerformanceCommercialController extends Controller
 
     	if($request->ajax()){
 
-    		$consultores = $request->consultores;
-            $start_month = $request->start_month;
-            $start_year = $request->start_year;
-            $end_month = $request->end_month;
-            $end_year = $request->end_year;
+    		$consultores_id = $request->consultores;
 
             $data = array();
 
-            $start_date = Carbon::createFromDate($start_year, $start_month)->startOfMonth();;
+            $start_date = Carbon::createFromDate($request->start_year, $request->start_month)->startOfMonth();;
 
-            $end_date = Carbon::createFromDate($end_year, $end_month)->endOfMonth();
+            $end_date = Carbon::createFromDate($request->end_year, $request->end_month)->endOfMonth();
 
             $start_date_str = $start_date->year . '-' . $start_date->month . '-' . $start_date->day;
 
@@ -57,25 +45,13 @@ class PerformanceCommercialController extends Controller
             }
 
 
-            for($i = 0; $i < count($consultores) ; $i++) {
+            for($i = 0; $i < count($consultores_id) ; $i++) {
                 
-                $consultor = CaoUsuario::where('co_usuario', $consultores[$i])->first();
+                $consultor = CaoUsuario::where('co_usuario', $consultores_id[$i])->first();
 
                 if($consultor){
 
-
-                	if($request->type == 1){
-
-                    	$consultor->relatorios = CaoFatura::getRelatorio($consultores[$i], $start_date_str, $end_date_str);;
-
-                    }
-                    else{
-
-                    	$consultor->ganancias = CaoFatura::getGraficaData($consultores[$i], $start_date_str, $end_date_str);
-
-                    	
-                    }
-
+                    $consultor->performances = CaoFatura::getPerformance($consultores_id[$i], $start_date_str, $end_date_str);
 
                     array_push($data, $consultor);
 
@@ -86,7 +62,7 @@ class PerformanceCommercialController extends Controller
 
             if($request->type == 2){
 
-            	$costo_fijo_promedio = $this->getCostoFijoPromedio($data);
+            	$costo_fijo_promedio = CaoSalario::getCostoFijoPromedio($data);
 
             	return response()->json([
                     	'data' => $data,
@@ -106,21 +82,18 @@ class PerformanceCommercialController extends Controller
     }
 
 
-    public function totalReceitas(PerformanceRequest $request){
+
+    public function getTotalEarnings(PerformanceRequest $request){
 
     	if($request->ajax()){
 
-    		$consultores = $request->consultores;
-            $start_month = $request->start_month;
-            $start_year = $request->start_year;
-            $end_month = $request->end_month;
-            $end_year = $request->end_year;
+    		$consultores_id = $request->consultores;
 
             $data = array();
 
-            $start_date = Carbon::createFromDate($start_year, $start_month)->startOfMonth();;
+            $start_date = Carbon::createFromDate($request->start_year, $request->start_month)->startOfMonth();;
 
-            $end_date = Carbon::createFromDate($end_year, $end_month)->endOfMonth();
+            $end_date = Carbon::createFromDate($request->end_year, $request->end_month)->endOfMonth();
 
             $start_date_str = $start_date->year . '-' . $start_date->month . '-' . $start_date->day;
 
@@ -134,14 +107,13 @@ class PerformanceCommercialController extends Controller
             }
 
 
-            $total_all_consultores_receitas = 0;
+            $total_all_consultores_earnings = 0;
 
-            for($i = 0; $i < count($consultores) ; $i++) {
+            for($i = 0; $i < count($consultores_id) ; $i++) {
 
+                $consultor = CaoFatura::getWithTotalEarnings($consultores_id[$i], $start_date_str, $end_date_str);
 
-                $consultor = CaoFatura::getWithTotalReceitas($consultores[$i], $start_date_str, $end_date_str);
-
-                $total_all_consultores_receitas += $consultor->receita;
+                $total_all_consultores_earnings += $consultor->receita;
 
                 array_push($data, $consultor);
 
@@ -150,42 +122,18 @@ class PerformanceCommercialController extends Controller
 
             foreach($data as $consultor){
 
-                $consultor->porcentaje = ($consultor->receita * 100) / $total_all_consultores_receitas;
+                $consultor->porcentaje = ($consultor->receita * 100) / $total_all_consultores_earnings;
 
             }
 
 
             return response()->json([
-                    'data' => $data,
-                    'total_all_consultores_receitas' => $total_all_consultores_receitas,
-                    'consultor' => $consultor
+                    'data' => $data
                 ], 200);
 
     	}
 
     	abort(401);
-
-    }
-
-
-
-    public function getCostoFijoPromedio($consultores){
-
-    	$costo = 0;
-
-    	foreach($consultores as $consultor){
-
-            $cao_salario = CaoSalario::where('co_usuario', $consultor->co_usuario)->first();
-
-            if($cao_salario)
-                $costo += $cao_salario->brut_salario;
-    		
-    	}
-
-
-    	$costo_fijo_promedio = $costo / count($consultores);
-
-    	return $costo_fijo_promedio;
 
     }
 
