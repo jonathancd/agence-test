@@ -102,17 +102,17 @@ let App = {
 		let backgroundColor = [];
 
 
-		for(let i=0; i < consultores.length; i++){
+		for(let i=0; i < consultores.length; i++){console.log(consultores[i])
 
 			let consultor = consultores[i];
 
-			let label = consultor.no_usuario + ', ' + Number(consultor.porcentaje).toFixed(2) + ' %';
+			let label = consultor.nombre_usuario + ', ' + Number(consultor.fatura.porcentaje).toFixed(2) + ' %';
 
 			let color = App.getRandomColor();
 
 			labels.push(label);
 
-			datasets_data.push(consultor.receita);
+			datasets_data.push(consultor.fatura.receita);
 
 			backgroundColor.push('#' + color);
 
@@ -217,7 +217,7 @@ let App = {
 
 		let dataset_data = [];
 
-		let consultor_name = data.no_usuario;
+		let consultor_name = data.nombre_usuario;
 
 		for(let i=0; i < dates.length; i++){
 
@@ -578,7 +578,7 @@ let App = {
 							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">R$ - ${App.getNumberLocale(costo)}</div>
 
 							<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Comision</div>
-							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">- R$ ${App.getNumberLocale(comision)}</div>
+							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">R$ -${App.getNumberLocale(comision)}</div>
 
 							<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Lucro</div>
 							<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border ${lucro_color}">R$ ${App.getNumberLocale(lucro)}</div>
@@ -604,7 +604,7 @@ let App = {
 				        	<button class="btn btn-link text-white" data-toggle="collapse" data-target="#collapseOne${index}" aria-expanded="true" aria-controls="collapseOne${index}">               
 								<i class="fa" aria-hidden="true"></i>
 
-								${consultor.no_usuario}
+								${consultor.nombre_usuario}
 
 							</button>
 
@@ -627,13 +627,13 @@ let App = {
 						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">R$ ${App.getNumberLocale(total_receita)}</div>
 
 						<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Costo Fijo</div>
-						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">- R$ ${App.getNumberLocale(total_costo)}</div>
+						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">R$ -${App.getNumberLocale(total_costo)}</div>
 
 						<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Comision</div>
-						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">- R$ ${App.getNumberLocale(total_comision)}</div>
+						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border">R$ - ${App.getNumberLocale(total_comision)}</div>
 
 						<div class="col-7 col-sm-7 d-md-none d-lg-none d-xl-none text-center border font-weight-bold">Lucro</div>
-						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border ${lucro_color}">- R$ ${App.getNumberLocale(total_lucro)}</div>
+						<div class="col-5 col-sm-5 col-md-2 col-lg-2 col-xl-2 text-right border ${lucro_color}">R$ ${App.getNumberLocale(total_lucro)}</div>
 					</div>`;
 
 		return html;

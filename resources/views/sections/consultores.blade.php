@@ -19,11 +19,13 @@
 					  			
 					  			<div class="consultor-item-label d-inline-block border-right py-3">
 
-					  				<label for="check-consultor-{{$consultor->co_usuario}}" class="m-0 pl-4">{{$consultor->no_usuario}}</label>
+					  				<label for="check-consultor-{{$consultor->co_usuario}}" class="m-0 pl-4">
+					  					{{$consultor->nombre_usuario}}
+									</label>
 
 								</div>
 
-					  			<input id="check-consultor-{{$consultor->co_usuario}}" class="ml-lg-4 ml-md-3 ml-sm-4 add-consultor-to-filter" type="checkbox" value="{{$consultor->co_usuario}}" no-usuario="{{$consultor->no_usuario}}"/>
+					  			<input id="check-consultor-{{$consultor->co_usuario}}" class="ml-lg-4 ml-md-3 ml-sm-4 add-consultor-to-filter" type="checkbox" value="{{$consultor->co_usuario}}" no-usuario="{{$consultor->nombre_usuario}}"/>
 
 					  		</li>
 						@endforeach

@@ -111,18 +111,26 @@ class PerformanceCommercialController extends Controller
 
             for($i = 0; $i < count($consultores_id) ; $i++) {
 
-                $consultor = CaoFatura::getWithTotalEarnings($consultores_id[$i], $start_date_str, $end_date_str);
+                $consultor = CaoUsuario::where('co_usuario', $consultores_id[$i])->first();
 
-                $total_all_consultores_earnings += $consultor->receita;
+                if($consultor){
 
-                array_push($data, $consultor);
+                    $fatura = CaoFatura::getWithTotalEarnings($consultores_id[$i], $start_date_str, $end_date_str);
+
+                    $total_all_consultores_earnings += $fatura->receita;
+
+                    $consultor->fatura = $fatura;
+
+                    array_push($data, $consultor);
+
+                }
 
             }
 
 
             foreach($data as $consultor){
 
-                $consultor->porcentaje =  $total_all_consultores_earnings > 0 ? ($consultor->receita * 100) / $total_all_consultores_earnings : 0;
+                $consultor->fatura->porcentaje =  $total_all_consultores_earnings > 0 ? ($consultor->fatura->receita * 100) / $total_all_consultores_earnings : 0;
 
             }
 

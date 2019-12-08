@@ -11,6 +11,15 @@ class CaoUsuario extends Model
 
     protected $with = ["salario"];
 
+    protected $appends = ['nombre_usuario'];
+
+
+    public function getNombreUsuarioAttribute(){
+
+        return iconv("UTF-8", "CP437", $this->no_usuario);
+
+    }
+
     public function salario(){
         return $this->hasOne('App\CaoSalario', 'co_usuario', 'co_usuario');
     }
@@ -30,5 +39,7 @@ class CaoUsuario extends Model
         return $usuarios;
 
     }
+
+    
 	
 }
