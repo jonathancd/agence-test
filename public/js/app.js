@@ -9,10 +9,15 @@ let App = {
 	start_year: document.getElementById("from-year"),
 	end_month: document.getElementById("to-month"),
 	end_year: document.getElementById("to-year"),
-	relatorios_container: document.getElementById("relatorios-container"),
-	grafica_container: document.getElementById("grafica-container"),
-	pizza_container: document.getElementById("pizza-container"),
 
+	relatorios_container: document.getElementById("relatorios-container"),
+	bar_chart_container: document.getElementById("grafica-container"),
+	pizza_chart_container: document.getElementById("pizza-container"),
+
+	bar_chart_id: "bar-chart",
+	pizza_chart_id: "pizza-chart",
+
+	// grafica_container: document.getElementById("grafica-container"),
 
 	getRelatorio: () => {
 
@@ -464,16 +469,9 @@ let App = {
 
 		        App.showGraficaSection();
 		        
-
 			    let months_and_years_selected = App.getMonthsYearsBetweenDates(data);
 
-			    console.log(response);
-
-			    App.addGrafica(months_and_years_selected, response.data, response.costo_fijo_promedio);
-
-		     //  	App.addRelatorios(months_and_years_selected, response.relatorios);
-
-		     //  	toastr.success("Relatorios cargados.");
+			    App.addGraficaChart(months_and_years_selected, response.data, response.costo_fijo_promedio);
 
 		    },
 		    error: function(e) {
@@ -499,15 +497,14 @@ let App = {
 
 	getPizza: () => {
 
-		let route = url + "/pizza";
+		let route = url + "/total-ganancias";
 
 		let data = {
 				start_month: App.start_month.value,
 				start_year: App.start_year.value,
 				end_month: App.end_month.value,
 				end_year: App.end_year.value,
-				consultores: App.consultores_co_usuario_in_filter,
-				type: 2
+				consultores: App.consultores_co_usuario_in_filter
 		}
 
 		$.ajax({
@@ -520,13 +517,13 @@ let App = {
 
 		    	console.log(response)
 
-		     //    App.clearRelatoriosContainer();
+		    	App.clearRelatoriosContainer();
+		        App.hideRelatoriosSection();
+		        App.hideGraficaSection();
 
-			    // let months_and_years_selected = App.getMonthsYearsBetweenDates(data);
+		        App.showPizzaSection();
 
-		     //  	App.addRelatorios(months_and_years_selected, response.relatorios);
-
-		     //  	toastr.success("Relatorios cargados.");
+		        App.addPizzaChart(response.data);
 
 		    },
 		    error: function(e) {
@@ -545,7 +542,6 @@ let App = {
 		    	}
 		    }
 		});
-
 
 	},
 
@@ -653,20 +649,18 @@ let App = {
 	},
 
 
-	refreshGraficaCanvas: () => {
+	refreshGraficaCanvas: (chart_id, container) => {
 
-
-		let bart_chart = document.getElementById("bar-chart");
+		let bart_chart = document.getElementById(chart_id);
 
 		bart_chart.remove();
-
-		let grafica_container = $('#grafica-container');
 		
-		$(grafica_container).append('<canvas id="bar-chart" width="800" height="250"></canvas>');
+		$(container).append('<canvas id="' + chart_id + '" width="800" height="250"></canvas>');
 
 	},
 
-	addGrafica: (dates, data, costo_promedio) => {
+
+	addGraficaChart: (dates, consultores, costo_promedio) => {
 
 		let datasets = [];
 
@@ -678,32 +672,28 @@ let App = {
 		datasets.push(dataset_costo_promedio);
 
 
+		for(let i=0; i<consultores.length; i++){
 
-		let colores = ["yellow", "blue", "green", "red"]
-
-
-		for(let i=0; i<data.length; i++){
-
-			let dataset = App.getDatasetBar(dates, data[i]);
+			let dataset = App.getDatasetBar(dates, consultores[i]);
 
 			datasets.push(dataset);
 			
 		}
 
+		App.refreshGraficaCanvas(App.bar_chart_id, App.bar_chart_container);
 
-		App.refreshGraficaCanvas();
+		let ctx = document.getElementById(App.bar_chart_id).getContext("2d");
 
-		var ctx = document.getElementById("bar-chart").getContext("2d");
-
-		var data = {
+		let data = {
 		    labels: labels_date,
 		    datasets: datasets
 		};
 
-		var myBarChart = new Chart(ctx, {
+		let myBarChart = new Chart(ctx, {
 		    type: 'bar',
 		    data: data,
 		    options: {
+		    	responsive: true,
 		        legend: {
 		            position: 'bottom',
 		            labels: {
@@ -723,6 +713,132 @@ let App = {
 		toastr.success("Gráfica cargada exitosamente.");
 
 	},
+
+	addPizzaChart: (consultores) => {
+
+
+		App.refreshGraficaCanvas(App.pizza_chart_id, App.pizza_chart_container);
+
+		// var ctx = document.getElementById("bar-chart").getContext("2d");
+
+		// var data = {
+		//     labels: labels_date,
+		//     datasets: datasets
+		// };
+
+		// var myBarChart = new Chart(ctx, {
+		//     type: 'bar',
+		//     data: data,
+		//     options: {
+		//         legend: {
+		//             position: 'bottom',
+		//             labels: {
+		//                 fontColor: "black",
+		//                 boxWidth: 20,
+		//                 padding: 50
+		//             }
+		//         },
+		//         title: {
+		//           display: true,
+		//           text: 'Performance Commercial'
+		//         },
+		//         barValueSpacing: 20,
+		//     }
+		// });
+
+		
+		//get the pie chart canvas
+
+
+		console.log(consultores);
+
+		let labels = [];
+		let datasets_data = [];
+		let backgroundColor = [];
+
+
+		for(let i=0; i < consultores.length; i++){
+
+			let consultor = consultores[i];
+
+			let label = consultor.no_usuario + ', ' + Number(consultor.porcentaje).toFixed(2) + ' %';
+
+			let color = App.getRandomColor();
+
+			labels.push(label);
+
+			datasets_data.push(consultor.receita);
+
+			backgroundColor.push('#' + color);
+
+		}
+
+
+		console.log(labels);
+		console.log(datasets_data);
+		console.log(backgroundColor);
+
+
+        let ctx = document.getElementById(App.pizza_chart_id);
+              
+        let data = {
+
+                // labels: ["match1", "match2", "match3", "match4", "match5"],
+                labels: labels,
+
+                datasets: [
+                  {
+
+                    // data: [10, 50, 25, 70, 40],
+                    data: datasets_data,
+
+                    backgroundColor: backgroundColor,
+                    // backgroundColor: [
+                    //   "#DEB887",
+                    //   "#A9A9A9",
+                    //   "#DC143C",
+                    //   "#F4A460",
+                    //   "#2E8B57"
+                    // ]
+
+                  }
+                ]
+            };
+
+              //options
+        let options = {
+             	responsive: true,
+                title: {
+                  	display: true,
+                  	position: "top",
+                  	text: "Ganancias Netas (%)",
+                  	fontSize: 18,
+                  	fontColor: "#111"
+                },
+                legend: {
+                  	display: true,
+                  	position: "bottom",
+                  	labels: {
+                    	fontColor: "#333",
+                    	fontSize: 16
+                  	}
+                }
+            };
+
+
+        let chart = new Chart(ctx, {
+                type: "pie",
+                data: data,
+                options: options
+            });
+
+		toastr.success("Gráfica cargada exitosamente.");
+
+	},
+
+
+
+
 
 
 

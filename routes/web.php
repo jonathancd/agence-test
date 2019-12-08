@@ -18,4 +18,4 @@
 Route::get('/', 'PerformanceCommercialController@index');
 Route::get('/relatorio', 'PerformanceCommercialController@getPerformance');
 Route::get('/grafica', 'PerformanceCommercialController@getPerformance');
-Route::get('/pizza', 'PerformanceCommercialController@pizza');
+Route::get('/total-ganancias', 'PerformanceCommercialController@totalReceitas');

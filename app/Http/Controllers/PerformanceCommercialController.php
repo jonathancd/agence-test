@@ -134,20 +134,31 @@ class PerformanceCommercialController extends Controller
             }
 
 
-            for($i = 0; $i < count($consultores) ; $i++) {
-                
-                $consultor = CaoUsuario::where('co_usuario', $consultores[$i])->first();
+            $total_all_consultores_receitas = 0;
 
-                
+            for($i = 0; $i < count($consultores) ; $i++) {
+
+
+                $consultor = CaoFatura::getWithTotalReceitas($consultores[$i], $start_date_str, $end_date_str);
+
+                $total_all_consultores_receitas += $consultor->receita;
+
+                array_push($data, $consultor);
 
             }
 
 
-            // calcular total...
+            foreach($data as $consultor){
+
+                $consultor->porcentaje = ($consultor->receita * 100) / $total_all_consultores_receitas;
+
+            }
 
 
             return response()->json([
                     'data' => $data,
+                    'total_all_consultores_receitas' => $total_all_consultores_receitas,
+                    'consultor' => $consultor
                 ], 200);
 
     	}
@@ -155,7 +166,6 @@ class PerformanceCommercialController extends Controller
     	abort(401);
 
     }
-
 
 
 
@@ -179,7 +189,5 @@ class PerformanceCommercialController extends Controller
 
     }
 
-
-    
     
 }
