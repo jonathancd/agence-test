@@ -122,7 +122,7 @@ class PerformanceCommercialController extends Controller
 
             foreach($data as $consultor){
 
-                $consultor->porcentaje = ($consultor->receita * 100) / $total_all_consultores_earnings;
+                $consultor->porcentaje =  $total_all_consultores_earnings > 0 ? ($consultor->receita * 100) / $total_all_consultores_earnings : 0;
 
             }
 
