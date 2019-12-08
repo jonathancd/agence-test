@@ -289,7 +289,8 @@ let App = {
 				start_year: App.start_year.value,
 				end_month: App.end_month.value,
 				end_year: App.end_year.value,
-				consultores: App.consultores_co_usuario_in_filter
+				consultores: App.consultores_co_usuario_in_filter,
+				type: 2
 		}
 
 		$('body').append('<div class="loading">Loading&#8230;</div>');
@@ -299,7 +300,7 @@ let App = {
 		    type:'get',
 		    data: data,
 		    dataType: 'json',
-		    success: function(response) {
+		    success: function(response) { console.log(response)
 
 		        App.clearRelatoriosContainer();
 		        App.hideRelatoriosSection();
@@ -413,7 +414,8 @@ let App = {
 				start_year: App.start_year.value,
 				end_month: App.end_month.value,
 				end_year: App.end_year.value,
-				consultores: App.consultores_co_usuario_in_filter
+				consultores: App.consultores_co_usuario_in_filter,
+				type: 1
 		}
 
 		$('body').append('<div class="loading">Loading&#8230;</div>');
@@ -423,7 +425,7 @@ let App = {
 		    type:'get',
 		    data: data,
 		    dataType: 'json',
-		    success: function(response) {console.log(response)
+		    success: function(response) {
 
 		        App.clearRelatoriosContainer();
 
@@ -534,8 +536,6 @@ let App = {
 			for(let j=0; j < consultor.performances.length; j++){
 
 				let performance = consultor.performances[j];
-
-				// costo = consultor.salario ? consultor.salario.brut_salario : 0;
 
 				if(date.month_num == performance.periodo_mes){
 
